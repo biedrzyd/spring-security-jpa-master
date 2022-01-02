@@ -1,10 +1,18 @@
 package io.javabrains.springsecurityjpa;
 
+import io.javabrains.springsecurityjpa.models.Password;
 import io.javabrains.springsecurityjpa.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
 @Controller
 public class HomeResource {
 
@@ -43,7 +51,7 @@ public class HomeResource {
 
         return "register_success";
     }
-/*
+
     @GetMapping(value="/")
     public String home() {
         String html = "<button onclick=\"getElementById('demo').innerHTML = Date()\">What is the time?</button>";
@@ -62,14 +70,15 @@ public class HomeResource {
 
         List<Password> passwordList = passwordDAO.findAll();
         Optional<User> userList = userRepository.findByUserName(currentUserName);
-        Integer currentUserId = userList.get().getId();
+        //Integer currentUserId = userList.get().getId();
+        Integer currentUserId = 5;
 
         StringBuilder html = new StringBuilder();
 
         for (Password p: passwordList
              ) {
             if(p.getUserid().equals(currentUserId)) {
-                html.append(AES.decrypt(p.getPassword(), "passwordpasswor1"));
+                html.append(AES.decrypt(p.getPassword(), "passwordpassword"));
                 html.append("<br>");
             }
         }
@@ -79,7 +88,7 @@ public class HomeResource {
     @GetMapping("/admin")
     public String admin() {
         return ("<h1>Welcome Admin</h1>");
-    }*/
+    }
 
 }
 
