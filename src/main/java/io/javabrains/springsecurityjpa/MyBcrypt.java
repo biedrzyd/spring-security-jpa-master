@@ -5,10 +5,12 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.regex.Pattern;
 
+@Service
 public class MyBcrypt implements PasswordEncoder {
 
     private Pattern BCRYPT_PATTERN;

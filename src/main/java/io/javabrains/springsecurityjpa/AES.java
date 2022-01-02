@@ -6,6 +6,7 @@ import org.apache.tomcat.util.codec.binary.Base64;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 
 public class AES {
     static  byte[]  key = "passwordpassword".getBytes();
@@ -66,6 +67,8 @@ public class AES {
         } catch (BadPaddingException e) {
             e.printStackTrace();
         }
+        if(Objects.isNull(decrypted))
+            return "WRONG PASSWORD";
         return new String(decrypted);
     }
 

@@ -1,37 +1,55 @@
 package io.javabrains.springsecurityjpa;
 
-import io.javabrains.springsecurityjpa.models.Password;
 import io.javabrains.springsecurityjpa.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
-
-@RestController
+@Controller
 public class HomeResource {
+
+    @Autowired
+    MyBcrypt bcrypt;
 
     @Autowired
     PasswordDAO passwordDAO;
 
     @Autowired
     UserRepository userRepository;
-    @GetMapping(value="/")
-    public String home() {
-        String html="<input></input>";
-        html += "<input type=submit></input>";
-        return html;
+
+    @Autowired
+    MyUserDetailsService service;
+
+    @GetMapping("/pass")
+    public String showForm(String pass) {
+        return pass;
     }
 
+    @GetMapping("/register")
+    public String showForm(Model model) {
+        User user = new User();
+        model.addAttribute("user", user);
 
-/*    @GetMapping("/pass")
-    public String showForm() {
-        return "pass_form";
-    }*/
+        return "register_form";
+    }
+
+    @PostMapping("/register")
+    public String submitForm(@ModelAttribute("user") User user) {
+        user.setActive(true);
+        user.setRoles("ROLE_USER");
+        String hashedPassword = bcrypt.encode(user.getPassword());
+        user.setPassword(hashedPassword);
+        service.addUser(user);
+
+        return "register_success";
+    }
+/*
+    @GetMapping(value="/")
+    public String home() {
+        String html = "<button onclick=\"getElementById('demo').innerHTML = Date()\">What is the time?</button>";
+        html += "<p id=\"demo\"></p>";
+        return html;
+    }
 
     @GetMapping("/passwords")
     public String user() {
@@ -48,11 +66,10 @@ public class HomeResource {
 
         StringBuilder html = new StringBuilder();
 
-        //SecretKey secretKey = AESUtil.getK
         for (Password p: passwordList
              ) {
             if(p.getUserid().equals(currentUserId)) {
-                html.append(AES.decrypt(p.getPassword(), "passwordpassword"));
+                html.append(AES.decrypt(p.getPassword(), "passwordpasswor1"));
                 html.append("<br>");
             }
         }
@@ -62,7 +79,7 @@ public class HomeResource {
     @GetMapping("/admin")
     public String admin() {
         return ("<h1>Welcome Admin</h1>");
-    }
+    }*/
 
 }
 
