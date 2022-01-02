@@ -3,20 +3,33 @@ package io.javabrains.springsecurityjpa.models;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "userpasswords")
-public class UserPasswords {
+@Table(name = "password")
+public class Password {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int iduserpasswords;
-    private int userid;
+    @Column
+    private Integer id;
+    @Column
+    private Integer userid;
+    @Column
     private String site;
+    @Column
     private String password;
 
-    public int getUserid() {
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getUserid() {
         return userid;
     }
 
-    public void setUserid(int userid) {
+    public void setUserid(Integer userid) {
         this.userid = userid;
     }
 
@@ -36,12 +49,6 @@ public class UserPasswords {
         this.password = password;
     }
 
-    public int getId() {
-        return iduserpasswords;
-    }
 
-    public void setId(int id) {
-        this.iduserpasswords = id;
-    }
 
 }
