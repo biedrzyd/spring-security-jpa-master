@@ -12,6 +12,9 @@ public class AES {
     static  byte[]  key = "passwordpassword".getBytes();
     final static String algorithm="AES";
 
+    public static void setKey(String pass){
+        key = pass.getBytes();
+    }
     public static String encrypt(String data){
 
         byte[] dataToSend = data.getBytes();
@@ -42,12 +45,6 @@ public class AES {
     }
 
     public static String decrypt(String data, String password){
-        StringBuilder passwordBuilder = new StringBuilder(password);
-        while (passwordBuilder.length() < 16)
-            passwordBuilder.append(" ");
-        password = passwordBuilder.toString();
-        while (password.length() > 16)
-            password = password.substring(0, password.length() - 1);
         key = password.getBytes();
         byte[] encryptedData  = new Base64().decode(data);
         Cipher c = null;

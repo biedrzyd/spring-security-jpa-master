@@ -66,6 +66,8 @@ public class HomeResource {
 
     @PostMapping("/addpassword")
     public String addpassword(@ModelAttribute("user") Password password) {
+        String encryptingPassword = padding(password.getDecryptpass());
+        AES.setKey(encryptingPassword);
         password.setPassword(AES.encrypt(password.getPassword()));
         password.setUserid(getCurrentUserId());
         passwordDAO.save(password);
@@ -83,11 +85,13 @@ public class HomeResource {
     public String user(@ModelAttribute("user") User user, Model model) {
         List<Password> passwordList = passwordDAO.findAll();
         List<Password> passwordsToRemove = new ArrayList<>();
+        String decryptPass = user.getPassword();
+        decryptPass = padding(decryptPass);
         int currentUserId = getCurrentUserId();
         for (Password p: passwordList
         ) {
             if(p.getUserid().equals(currentUserId)) {
-                p.setPassword(AES.decrypt(p.getPassword(), user.getPassword()));
+                p.setPassword(AES.decrypt(p.getPassword(), decryptPass));
             } else {
                 passwordsToRemove.add(p);
             }
@@ -113,5 +117,13 @@ public class HomeResource {
         return ("<h1>Welcome Admin</h1>");
     }
 
-
+    private String padding(String password){
+        StringBuilder passwordBuilder = new StringBuilder(password);
+        while (passwordBuilder.length() < 16)
+            passwordBuilder.append("a");
+        String encryptingPassword = passwordBuilder.toString();
+        while (encryptingPassword.length() > 16)
+            encryptingPassword = encryptingPassword.substring(0, encryptingPassword.length() - 1);
+        return encryptingPassword;
+    }
 }
