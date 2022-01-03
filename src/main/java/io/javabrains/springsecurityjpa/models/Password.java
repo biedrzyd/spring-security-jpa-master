@@ -16,15 +16,7 @@ public class Password {
     @Column
     private String password;
 
-    public String getDecryptpass() {
-        return decryptpass;
-    }
 
-    public void setDecryptpass(String decryptpass) {
-        this.decryptpass = decryptpass;
-    }
-
-    private String decryptpass;
 
     public Integer getId() {
         return id;

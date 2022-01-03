@@ -1,5 +1,6 @@
 package io.javabrains.springsecurityjpa;
 
+import io.javabrains.springsecurityjpa.models.CreateNewPassword;
 import io.javabrains.springsecurityjpa.models.Password;
 import io.javabrains.springsecurityjpa.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,19 +59,23 @@ public class HomeResource {
 
     @GetMapping("/addpassword")
     public String addpassword(Model model) {
-        Password password = new Password();
+        CreateNewPassword password = new CreateNewPassword();
         model.addAttribute("password", password);
 
         return "add_password";
     }
 
     @PostMapping("/addpassword")
-    public String addpassword(@ModelAttribute("user") Password password) {
+    public String addpassword(@ModelAttribute("user") CreateNewPassword password) {
         String encryptingPassword = padding(password.getDecryptpass());
         AES.setKey(encryptingPassword);
-        password.setPassword(AES.encrypt(password.getPassword()));
-        password.setUserid(getCurrentUserId());
-        passwordDAO.save(password);
+
+        Password passwordToSave = new Password();
+        passwordToSave.setPassword(AES.encrypt(password.getPassword()));
+        passwordToSave.setUserid(getCurrentUserId());
+        passwordToSave.setSite(password.getSite());
+        passwordDAO.save(passwordToSave);
+
         return "password_added";
     }
 
