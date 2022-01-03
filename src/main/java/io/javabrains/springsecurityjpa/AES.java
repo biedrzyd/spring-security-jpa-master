@@ -42,6 +42,12 @@ public class AES {
     }
 
     public static String decrypt(String data, String password){
+        StringBuilder passwordBuilder = new StringBuilder(password);
+        while (passwordBuilder.length() < 16)
+            passwordBuilder.append(" ");
+        password = passwordBuilder.toString();
+        while (password.length() > 16)
+            password = password.substring(0, password.length() - 1);
         key = password.getBytes();
         byte[] encryptedData  = new Base64().decode(data);
         Cipher c = null;
@@ -68,7 +74,7 @@ public class AES {
             e.printStackTrace();
         }
         if(Objects.isNull(decrypted))
-            return "WRONG PASSWORD";
+            return "ENCRYPTED";
         return new String(decrypted);
     }
 

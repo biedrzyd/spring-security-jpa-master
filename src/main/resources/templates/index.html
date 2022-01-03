@@ -1,10 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>hello</title>
+    <title>User Registration</title>
 </head>
 <body>
+<div align="center">
+    <h1>Podaj hasło do menedżera haseł</h1>
+    <form action="#" th:action="@{/passwords}" method="get" th:object="${user}">
+        <label>Password:</label>
+        <input type="text" th:field="*{password}" /><br/>
+        <button type="submit">Wyświetl hasła</button>
 
+    </form>
+</div>
 </body>
 </html>

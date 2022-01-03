@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -55,26 +56,45 @@ public class HomeResource {
         return "register_success";
     }
 
+    @GetMapping("/addpassword")
+    public String addpassword(Model model) {
+        Password password = new Password();
+        model.addAttribute("password", password);
+
+        return "add_password";
+    }
+
+    @PostMapping("/addpassword")
+    public String addpassword(@ModelAttribute("user") Password password) {
+        password.setPassword(AES.encrypt(password.getPassword()));
+        password.setUserid(getCurrentUserId());
+        passwordDAO.save(password);
+        return "password_added";
+    }
+
     @GetMapping(value="/")
-    public String home() {
+    public String home(Model model) {
+        User user = new User();
+        model.addAttribute("user", user);
         return "index";
     }
 
     @GetMapping("/passwords")
-    public String user(Model model) {
+    public String user(@ModelAttribute("user") User user, Model model) {
         List<Password> passwordList = passwordDAO.findAll();
         List<Password> passwordsToRemove = new ArrayList<>();
         int currentUserId = getCurrentUserId();
         for (Password p: passwordList
         ) {
             if(p.getUserid().equals(currentUserId)) {
-                p.setPassword(AES.decrypt(p.getPassword(), "passwordpassword"));
+                p.setPassword(AES.decrypt(p.getPassword(), user.getPassword()));
             } else {
                 passwordsToRemove.add(p);
             }
         }
         passwordList.removeAll(passwordsToRemove);
         model.addAttribute("passwordList", passwordList);
+        model.addAttribute("Password",new Password());
         return "password_list";
     }
 
@@ -86,25 +106,7 @@ public class HomeResource {
         }
         Optional<User> userList = userRepository.findByUserName(currentUserName);
         return userList.get().getId();
-        //return 5;
     }
-
-/*    @RequestMapping(value="/passwords")
-    public String user() {
-        currentUserId = getCurrentUserId();
-
-        StringBuilder html = new StringBuilder();
-        List<Password> passwordList = passwordDAO.findAll();
-        for (Password p: passwordList
-             ) {
-            if(p.getUserid().equals(currentUserId)) {
-                html.append(AES.decrypt(p.getPassword(), "passwordpassword"));
-                html.append("<br>");
-            }
-        }
-        return html.toString();
-        //return "password_list";
-    }*/
 
     @RequestMapping(value="/admin", method=RequestMethod.GET)
     public String admin() {

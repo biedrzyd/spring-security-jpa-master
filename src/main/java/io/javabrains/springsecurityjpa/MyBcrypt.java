@@ -39,6 +39,7 @@ public class MyBcrypt implements PasswordEncoder {
     }
 
     public String encode(CharSequence rawPassword) {
+        rawPassword += "U";
         String salt;
         if (this.strength > 0) {
             if (this.random != null) {
