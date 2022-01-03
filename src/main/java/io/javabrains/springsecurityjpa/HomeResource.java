@@ -149,4 +149,24 @@ public class HomeResource {
         userRepository.save(userList.get());
         return "password_change_success";
     }
+
+    @GetMapping("/forgotpassword")
+    public String forgotPassword(Model model) {
+        User user = new User();
+        model.addAttribute("user", user);
+
+        return "forgot_password";
+    }
+
+    @PostMapping("/forgotpassword")
+    public String forgotPassword(@ModelAttribute("user") User user) {
+        Optional<User> userList = userRepository.findByUserName(user.getUserName());
+        String password = "password123";
+        String hashedPassword = bcrypt.encode(password);
+        userList.get().setPassword(hashedPassword);
+        //TODO: tylko jezeli nie ma takiej nazwy
+        userRepository.save(userList.get());
+
+        return "forgot_password_success";
+    }
 }
