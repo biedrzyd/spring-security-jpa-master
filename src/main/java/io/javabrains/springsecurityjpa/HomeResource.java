@@ -1,5 +1,6 @@
 package io.javabrains.springsecurityjpa;
 
+import io.javabrains.springsecurityjpa.models.ChangePassword;
 import io.javabrains.springsecurityjpa.models.CreateNewPassword;
 import io.javabrains.springsecurityjpa.models.Password;
 import io.javabrains.springsecurityjpa.models.User;
@@ -32,12 +33,6 @@ public class HomeResource {
     @Autowired
     MyUserDetailsService service;
 
-
-    @GetMapping("/pass")
-    public String showForm(String pass) {
-        return pass;
-    }
-
     @GetMapping("/register")
     public String showForm(Model model) {
         User user = new User();
@@ -52,6 +47,7 @@ public class HomeResource {
         user.setRoles("ROLE_USER");
         String hashedPassword = bcrypt.encode(user.getPassword());
         user.setPassword(hashedPassword);
+        //TODO: tylko jezeli nie ma takiej nazwy
         service.addUser(user);
 
         return "register_success";
@@ -130,5 +126,27 @@ public class HomeResource {
         while (encryptingPassword.length() > 16)
             encryptingPassword = encryptingPassword.substring(0, encryptingPassword.length() - 1);
         return encryptingPassword;
+    }
+
+    @GetMapping("/changepassword")
+    public String changePassword(Model model) {
+        ChangePassword user = new ChangePassword();
+        model.addAttribute("user", user);
+
+        return "change_password";
+    }
+
+    @PostMapping("/changepassword")
+    public String changePassword(@ModelAttribute("user") ChangePassword user) {
+        Optional<User> userList = userRepository.findById(getCurrentUserId());
+        if(!user.getNewPassword().equals(user.getConfirmPassword()) || !bcrypt.matches(user.getPassword(), userList.get().getPassword())) {
+            return "password_change_failure";
+        }
+        userList.get().setPassword(user.getConfirmPassword());
+        System.out.println(userList.get().getPassword());
+        System.out.println((userRepository.findById(getCurrentUserId()).get().getPassword()));
+        service.setUserPassword(getCurrentUserId(), bcrypt.encode(user.getConfirmPassword()));
+        userRepository.save(userList.get());
+        return "password_change_success";
     }
 }

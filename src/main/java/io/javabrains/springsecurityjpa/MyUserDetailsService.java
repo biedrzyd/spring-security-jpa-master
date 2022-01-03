@@ -31,4 +31,15 @@ public class MyUserDetailsService implements UserDetailsService {
     public void addUser(User user){
         userRepository.save(user);
     }
+
+    public User getUserById(int id){
+        Optional<User> user = userRepository.findById(id);
+        user.orElseThrow(() -> new UsernameNotFoundException("Not found: " + id));
+        return user.get();
+    }
+
+    public void setUserPassword(int id, String password){
+        userRepository.findById(id).get().setPassword(password);
+    }
+
 }
