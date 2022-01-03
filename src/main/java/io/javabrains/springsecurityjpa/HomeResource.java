@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,27 +55,44 @@ public class HomeResource {
 
     @GetMapping(value="/")
     public String home() {
-        String html = "<button onclick=\"getElementById('demo').innerHTML = Date()\">What is the time?</button>";
-        html += "<p id=\"demo\"></p>";
-        return html;
+        return "index";
     }
 
     @GetMapping("/passwords")
-    public String user() {
+    public String user(Model model) {
+        List<Password> passwordList = passwordDAO.findAll();
+        List<Password> passwordsToRemove = new ArrayList<>();
+        int currentUserId = getCurrentUserId();
+        for (Password p: passwordList
+        ) {
+            if(p.getUserid().equals(currentUserId)) {
+                p.setPassword(AES.decrypt(p.getPassword(), "passwordpassword"));
+            } else {
+                passwordsToRemove.add(p);
+            }
+        }
+        passwordList.removeAll(passwordsToRemove);
+        model.addAttribute("passwordList", passwordList);
+        return "password_list";
+    }
+
+    private int getCurrentUserId(){
         String currentUserName = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             currentUserName = authentication.getName();
         }
-
-        List<Password> passwordList = passwordDAO.findAll();
         Optional<User> userList = userRepository.findByUserName(currentUserName);
-        //Integer currentUserId = userList.get().getId();
-        Integer currentUserId = 5;
+        return userList.get().getId();
+        //return 5;
+    }
+
+/*    @RequestMapping(value="/passwords")
+    public String user() {
+        currentUserId = getCurrentUserId();
 
         StringBuilder html = new StringBuilder();
-
+        List<Password> passwordList = passwordDAO.findAll();
         for (Password p: passwordList
              ) {
             if(p.getUserid().equals(currentUserId)) {
@@ -83,12 +101,13 @@ public class HomeResource {
             }
         }
         return html.toString();
-    }
+        //return "password_list";
+    }*/
 
-    @GetMapping("/admin")
+    @RequestMapping(value="/admin", method=RequestMethod.GET)
     public String admin() {
         return ("<h1>Welcome Admin</h1>");
     }
 
-}
 
+}
