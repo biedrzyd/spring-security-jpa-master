@@ -14,8 +14,26 @@
       text-align: left;
     }
   </style>
+  <style>
+    #left{
+      position: absolute;
+      left: 50px;
+      top: 200px;
+    }
+  </style>
 </head>
 <body>
+<div id="left">
+  <a href="changepassword">Zmień hasło</a>
+  <br>
+  <a href="register">Zarejestruj się</a>
+  <br>
+  <a href="login">Zaloguj się</a>
+  <br>
+  <a href="addpassword">Dodaj hasło</a>
+  <br>
+  <a href="/">Wyświetl hasła</a>
+</div>
 <div align="center">
   <h2>Registration Succeeded!</h2>
   <span>Full name:</span><span th:text="${user.userName}"></span><br/>

@@ -3,8 +3,26 @@
 <head>
     <meta charset="ISO-8859-1">
     <title>User Registration</title>
+    <style>
+        #left{
+            position: absolute;
+            left: 50px;
+            top: 200px;
+        }
+    </style>
 </head>
 <body>
+<div id="left">
+    <a href="changepassword">Zmie? has?o</a>
+    <br>
+    <a href="register">Zarejestruj si?</a>
+    <br>
+    <a href="login">Zaloguj si?</a>
+    <br>
+    <a href="addpassword">Dodaj has?o</a>
+    <br>
+    <a href="/">Wy?wietl has?a</a>
+</div>
 <div align="center">
     <h1>User Registration</h1>
     <form action="#" th:action="@{/register}" method="post" th:object="${user}">
