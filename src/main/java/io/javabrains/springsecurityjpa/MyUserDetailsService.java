@@ -11,11 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jws.soap.SOAPBinding;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
 public class MyUserDetailsService implements UserDetailsService {
 
+    public static final int MAX_FAILED_ATTEMPTS=3;
     @Autowired
     UserRepository userRepository;
 
@@ -42,4 +44,19 @@ public class MyUserDetailsService implements UserDetailsService {
         userRepository.findById(id).get().setPassword(password);
     }
 
+    public User getUserByUserName(String username) {
+        return userRepository.findByUserName(username).get();
+    }
+
+    public void increaseFailedAttempt(User user) {
+        int newFailedAttempts = user.getFailedAttempt() + 1;
+        userRepository.updateFailedAttempt(newFailedAttempts, user.getUserName());
+    }
+
+    public void lock(User user) {
+        user.setAccountNonLocked(false);
+        user.setLockTime(new Date());
+
+        userRepository.save(user);
+    }
 }

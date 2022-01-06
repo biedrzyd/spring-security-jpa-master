@@ -18,7 +18,10 @@ import sun.security.rsa.RSASignature;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
+    private CustomLoginFailureHandler loginFailureHandler;
+    @Autowired
     UserDetailsService userDetailsService;
+
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -29,14 +32,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/admin").hasRole("ADMIN")
+                .antMatchers("/login").permitAll()
                 .antMatchers("/user").hasAnyRole("ADMIN", "USER")
                 .antMatchers("/").permitAll()
-                .and().formLogin();
+                .and().
+                formLogin()
+                //.loginPage("/login")
+                .failureHandler(loginFailureHandler)
+                .usernameParameter("username")
+                .permitAll();
 
     }
-
-/*    @Bean
-    public PasswordEncoder getPasswordEncoder() {
-        return new MyBcrypt();
-    }*/
 }

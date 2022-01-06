@@ -21,6 +21,7 @@ import java.util.Optional;
 @Controller
 public class HomeResource {
 
+    //TODO: dodawac pokazywanie kto jest zalogowany lub jezeli wylogowany
     @Autowired
     MyBcrypt bcrypt;
 
@@ -39,6 +40,16 @@ public class HomeResource {
         model.addAttribute("user", user);
 
         return "register_form";
+    }
+
+    @GetMapping("/wp")
+    public String wrongPassword() {
+        return "wp";
+    }
+
+    @GetMapping("/locked")
+    public String accountLocked() {
+        return "locked";
     }
 
     @PostMapping("/register")
