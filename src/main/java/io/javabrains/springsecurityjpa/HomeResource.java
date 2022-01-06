@@ -42,6 +42,25 @@ public class HomeResource {
         return "register_form";
     }
 
+    @PostMapping("/register")
+    public String submitForm(@ModelAttribute("user") User user, Model model) {
+        user.setActive(true);
+        user.setRoles("ROLE_USER");
+        double entropy = CreateNewPassword.calculateEntropy(user.getPassword());
+        if(entropy < 3.5){
+            System.out.println(entropy);
+            user.setPassword(String.valueOf(entropy));
+            model.addAttribute("user", user);
+            return "weak_pass";
+        }
+        String hashedPassword = bcrypt.encode(user.getPassword());
+        user.setPassword(hashedPassword);
+        //TODO: tylko jezeli nie ma takiej nazwy
+        service.addUser(user);
+
+        return "register_success";
+    }
+
     @GetMapping("/wp")
     public String wrongPassword() {
         return "wp";
@@ -50,18 +69,6 @@ public class HomeResource {
     @GetMapping("/locked")
     public String accountLocked() {
         return "locked";
-    }
-
-    @PostMapping("/register")
-    public String submitForm(@ModelAttribute("user") User user) {
-        user.setActive(true);
-        user.setRoles("ROLE_USER");
-        String hashedPassword = bcrypt.encode(user.getPassword());
-        user.setPassword(hashedPassword);
-        //TODO: tylko jezeli nie ma takiej nazwy
-        service.addUser(user);
-
-        return "register_success";
     }
 
     @GetMapping("/addpassword")
