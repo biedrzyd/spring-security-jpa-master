@@ -3,35 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>User Registration</title>
-    <style>
-        #left{
-            position: absolute;
-            left: 50px;
-            top: 200px;
-        }
-    </style>
+    <link th:href = "@{css/main.css}" rel="stylesheet">
 </head>
 <body>
-<div id="left">
+<div id="nav">
     <a href="changepassword">Zmień hasło</a>
-    <br>
     <a href="register">Zarejestruj się</a>
-    <br>
     <a href="login">Zaloguj się</a>
-    <br>
     <a href="addpassword">Dodaj hasło</a>
-    <br>
     <a href="/">Wyświetl hasła</a>
 </div>
 <div align="center">
-    <h1>User Registration</h1>
+    <h1>Rejestracja</h1>
     <form action="#" th:action="@{/register}" method="post" th:object="${user}">
-        <label>Full name:</label>
-        <input type="text" th:field="*{userName}" /><br/>
-        <label>Password:</label>
-        <input type="text" th:field="*{password}" /><br/>
+        <label>Nazwa:</label>
+        <input type="text" th:field="*{userName}"  pattern="[A-Za-z]{6,}" required
+               title = "Dozwolone tylko duże i małe litery alfabetu, co najmniej 6 znaków"/><br/>
+        <label>Hasło:</label>
+        <input type="password" th:field="*{password}" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required
+               title="Hasło powinno zawierać jedną cyfrę, jedną wielką literę, jeden znak specjalny i mieć co najmniej 8 znaków"/><br/>
         <button type="submit">Register</button>
-
     </form>
 </div>
 </body>

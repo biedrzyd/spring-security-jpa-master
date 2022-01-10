@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Słabe hasło</title>
+    <link th:href = "@{css/main.css}" rel="stylesheet">
 </head>
 <body>
-Twoje hasło jest słabe
+Twoje hasło jest za słabe, jego entropia to
+<span th:text="${entropy}"></span><br />
 </body>
 </html>

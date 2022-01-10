@@ -45,7 +45,8 @@ public class MyUserDetailsService implements UserDetailsService {
     }
 
     public User getUserByUserName(String username) {
-        return userRepository.findByUserName(username).get();
+        Optional<User> user = userRepository.findByUserName(username);
+        return user.orElse(null);
     }
 
     public void increaseFailedAttempt(User user) {

@@ -8,14 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Controller
@@ -47,17 +46,18 @@ public class HomeResource {
         user.setActive(true);
         user.setRoles("ROLE_USER");
         double entropy = CreateNewPassword.calculateEntropy(user.getPassword());
-        if(entropy < 3.5){
+        if(entropy == 3.0){
             System.out.println(entropy);
             user.setPassword(String.valueOf(entropy));
             model.addAttribute("user", user);
+            model.addAttribute("entropy", entropy);
             return "weak_pass";
         }
         String hashedPassword = bcrypt.encode(user.getPassword());
         user.setPassword(hashedPassword);
         //TODO: tylko jezeli nie ma takiej nazwy
         service.addUser(user);
-
+        model.addAttribute("entropy", entropy);
         return "register_success";
     }
 
@@ -86,7 +86,7 @@ public class HomeResource {
 
         Password passwordToSave = new Password();
         passwordToSave.setPassword(AES.encrypt(password.getPassword()));
-        passwordToSave.setUserid(getCurrentUserId());
+        passwordToSave.setUserid((Integer) getCurrentUserId());
         passwordToSave.setSite(password.getSite());
         passwordDAO.save(passwordToSave);
 
@@ -106,7 +106,12 @@ public class HomeResource {
         List<Password> passwordsToRemove = new ArrayList<>();
         String decryptPass = user.getPassword();
         decryptPass = padding(decryptPass);
-        int currentUserId = getCurrentUserId();
+        int currentUserId;
+        if(Objects.isNull(getCurrentUserId())){
+            return "not_logged";
+        } else{
+            currentUserId = (int) getCurrentUserId();
+        }
         for (Password p: passwordList
         ) {
             if(p.getUserid().equals(currentUserId)) {
@@ -121,14 +126,19 @@ public class HomeResource {
         return "password_list";
     }
 
-    private int getCurrentUserId(){
+    private Object getCurrentUserId(){
         String currentUserName = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             currentUserName = authentication.getName();
         }
+        if(currentUserName == null)
+            return null;
         Optional<User> userList = userRepository.findByUserName(currentUserName);
-        return userList.get().getId();
+        if(!userList.isPresent()){
+            return null;
+        }
+        else return userList.get().getId();
     }
 
     @RequestMapping(value="/admin", method=RequestMethod.GET)
@@ -156,14 +166,18 @@ public class HomeResource {
 
     @PostMapping("/changepassword")
     public String changePassword(@ModelAttribute("user") ChangePassword user) {
-        Optional<User> userList = userRepository.findById(getCurrentUserId());
+        int currentUserId;
+        if(Objects.isNull(getCurrentUserId())){
+            return "not_logged";
+        } else{
+            currentUserId = (int) getCurrentUserId();
+        }
+        Optional<User> userList = userRepository.findById(currentUserId);
         if(!user.getNewPassword().equals(user.getConfirmPassword()) || !bcrypt.matches(user.getPassword(), userList.get().getPassword())) {
             return "password_change_failure";
         }
         userList.get().setPassword(user.getConfirmPassword());
-        System.out.println(userList.get().getPassword());
-        System.out.println((userRepository.findById(getCurrentUserId()).get().getPassword()));
-        service.setUserPassword(getCurrentUserId(), bcrypt.encode(user.getConfirmPassword()));
+        service.setUserPassword(currentUserId, bcrypt.encode(user.getConfirmPassword()));
         userRepository.save(userList.get());
         return "password_change_success";
     }
