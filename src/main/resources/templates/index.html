@@ -13,13 +13,16 @@
     <a href="addpassword">Dodaj hasło</a>
     <a href="/">Wyświetl hasła</a>
 </div>
+<div id="login">
+    <span>Obecnie zalogowany </span><b><span th:text="${currentUserName}"></span></b>
+</div>
+
 <div align="center">
     <h1>Podaj hasło do menedżera haseł</h1>
     <form action="#" th:action="@{/passwords}" method="get" th:object="${user}">
         <label>Password:</label>
         <input type="password" th:field="*{password}" /><br/>
         <button type="submit">Wyświetl hasła</button>
-
     </form>
 </div>
 </body>

@@ -14,7 +14,6 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    @Pattern(regexp = "[a-zA-Z0-9]")
     private String userName;
     private String password;
     private boolean active;

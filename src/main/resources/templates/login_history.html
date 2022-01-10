@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Historia logowań</title>
+    <link th:href = "@{css/main.css}" rel="stylesheet">
+</head>
+<body>
+<div id="nav">
+    <a href="changepassword">Zmień hasło</a>
+    <a href="register">Zarejestruj się</a>
+    <a href="login">Zaloguj się</a>
+    <a href="addpassword">Dodaj hasło</a>
+    <a href="/">Wyświetl hasła</a>
+</div>
+Daty logowań:
+<br>
+<tr th:each="LoginHistory: ${loginList}">
+    <td th:text="${LoginHistory.getTime()}" />
+    <br>
+</tr>
+</body>
+</html>

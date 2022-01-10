@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 @Service
@@ -55,6 +56,13 @@ public class MyBcrypt implements PasswordEncoder {
     }
 
     public boolean matches(CharSequence rawPassword, String encodedPassword) {
+        try{
+            TimeUnit.SECONDS.sleep(1);
+        }
+        catch(InterruptedException ex)
+        {
+            Thread.currentThread().interrupt();
+        }
         if (encodedPassword != null && encodedPassword.length() != 0) {
             if (!this.BCRYPT_PATTERN.matcher(encodedPassword).matches()) {
                 this.logger.warn("Encoded password does not look like BCrypt");

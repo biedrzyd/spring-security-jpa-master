@@ -1,21 +1,18 @@
 package io.javabrains.springsecurityjpa;
 
-import io.javabrains.springsecurityjpa.models.ChangePassword;
-import io.javabrains.springsecurityjpa.models.CreateNewPassword;
-import io.javabrains.springsecurityjpa.models.Password;
-import io.javabrains.springsecurityjpa.models.User;
+import io.javabrains.springsecurityjpa.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 public class HomeResource {
@@ -26,6 +23,9 @@ public class HomeResource {
 
     @Autowired
     PasswordDAO passwordDAO;
+
+    @Autowired
+    LoginDAO loginDAO;
 
     @Autowired
     UserRepository userRepository;
@@ -46,7 +46,7 @@ public class HomeResource {
         user.setActive(true);
         user.setRoles("ROLE_USER");
         double entropy = CreateNewPassword.calculateEntropy(user.getPassword());
-        if(entropy == 3.0){
+        if(entropy == 0.0){
             System.out.println(entropy);
             user.setPassword(String.valueOf(entropy));
             model.addAttribute("user", user);
@@ -55,10 +55,13 @@ public class HomeResource {
         }
         String hashedPassword = bcrypt.encode(user.getPassword());
         user.setPassword(hashedPassword);
-        //TODO: tylko jezeli nie ma takiej nazwy
-        service.addUser(user);
-        model.addAttribute("entropy", entropy);
-        return "register_success";
+        if(service.getUserByUserName(user.getUserName()) == null) {
+            service.addUser(user);
+            model.addAttribute("entropy", entropy);
+            return "register_success";
+        }
+        else
+            return "user_exists";
     }
 
     @GetMapping("/wp")
@@ -97,6 +100,15 @@ public class HomeResource {
     public String home(Model model) {
         User user = new User();
         model.addAttribute("user", user);
+
+        String currentUserName = "niezalogowany";
+        boolean logged = false;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUserName = authentication.getName();
+        }
+        model.addAttribute("currentUserName", currentUserName);
+
         return "index";
     }
 
@@ -200,5 +212,37 @@ public class HomeResource {
         userRepository.save(userList.get());
 
         return "forgot_password_success";
+    }
+
+    @GetMapping("/loginhistory")
+    public String loginHistory(Model model) {
+        int id;
+        if(Objects.isNull(getCurrentUserId())){
+            return "not_logged";
+        } else{
+            id = (int) getCurrentUserId();
+        }
+        model.addAttribute("id", id);
+
+        List<LoginHistory> loginList = loginDAO.findAll();
+        List<LoginHistory> loginToRemove = new ArrayList<>();
+        for (LoginHistory l: loginList) {
+            if(l.getUserid() != id) {
+                loginToRemove.add(l);
+            }
+        }
+        loginList.removeAll(loginToRemove);
+        model.addAttribute("loginList", loginList);
+        model.addAttribute("LoginHistory", new LoginHistory());
+        return "login_history";
+    }
+
+    @GetMapping("/logged")
+    public String redirectWithUsingForwardPrefix() {
+        LoginHistory loginHistory = new LoginHistory();
+        loginHistory.setUserid((int) getCurrentUserId());
+        loginHistory.setTime(new Date());
+        loginDAO.save(loginHistory);
+        return "login_success";
     }
 }
