@@ -2,12 +2,14 @@ package io.javabrains.springsecurityjpa;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -15,17 +17,19 @@ import java.util.regex.Pattern;
 @Service
 public class MyBcrypt implements PasswordEncoder {
 
-    private Pattern BCRYPT_PATTERN;
+    private final Pattern BCRYPT_PATTERN;
     private final Log logger;
     private final int strength;
     private final SecureRandom random;
+    private String pepper;
+    private final int pepperLength = 2;
 
     public MyBcrypt() {
         this(-1);
     }
 
     public MyBcrypt(int strength) {
-        this(strength, (SecureRandom)null);
+        this(strength, null);
     }
 
     public MyBcrypt(int strength, SecureRandom random) {
@@ -39,8 +43,30 @@ public class MyBcrypt implements PasswordEncoder {
         }
     }
 
+    private void setPepper() throws IOException {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader("src/main/resources/pepper.txt"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        assert reader != null;
+        pepper = reader.readLine();
+        if(!(pepper.length() == pepperLength)){
+            throw new IllegalArgumentException("Zla dlugosc pieprzu");
+        }
+    }
+
     public String encode(CharSequence rawPassword) {
-        rawPassword += "U";
+        if(pepper == null) {
+            try {
+                setPepper();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        rawPassword += pepper;
         String salt;
         if (this.strength > 0) {
             if (this.random != null) {
@@ -56,11 +82,9 @@ public class MyBcrypt implements PasswordEncoder {
     }
 
     public boolean matches(CharSequence rawPassword, String encodedPassword) {
-        try{
+        try {
             TimeUnit.SECONDS.sleep(1);
-        }
-        catch(InterruptedException ex)
-        {
+        } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
         if (encodedPassword != null && encodedPassword.length() != 0) {
@@ -69,13 +93,16 @@ public class MyBcrypt implements PasswordEncoder {
                 return false;
             } else {
                 boolean matches = false;
-                StringBuilder rawPasswordBuilder = new StringBuilder(rawPassword);
-                for(int i = 65; i < 97; i++){
-                    String passwordWithPepper = rawPassword + String.valueOf((char) i);
-                    if(BCrypt.checkpw(passwordWithPepper, encodedPassword)) {
-                        matches = true;
-                        break;
+                for (int k = 65; k < 97; k++) {
+                    for (int i = 65; i < 97; i++) {
+                        String passwordWithPepper = rawPassword + String.valueOf((char) i) + String.valueOf((char) k);
+                        if (BCrypt.checkpw(passwordWithPepper, encodedPassword)) {
+                            matches = true;
+                            break;
+                        }
                     }
+                    if(matches)
+                        break;
                 }
                 return matches;
             }

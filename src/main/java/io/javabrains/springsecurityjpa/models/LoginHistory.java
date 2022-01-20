@@ -2,6 +2,7 @@ package io.javabrains.springsecurityjpa.models;
 
 import javax.persistence.*;
 import java.util.Date;
+
 @Entity
 @Table(name = "logins")
 public class LoginHistory {

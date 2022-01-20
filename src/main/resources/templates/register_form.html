@@ -12,13 +12,14 @@
     <a href="login">Zaloguj się</a>
     <a href="addpassword">Dodaj hasło</a>
     <a href="/">Wyświetl hasła</a>
+    <a href="forgotpassword">Zresetuj hasło</a>
 </div>
 <div align="center">
     <h1>Rejestracja</h1>
     <form action="#" th:action="@{/register}" method="post" th:object="${user}">
         <label>Nazwa:</label>
-        <input type="text" th:field="*{userName}"  pattern="[A-Za-z]{6,}" required
-               title = "Dozwolone tylko duże i małe litery alfabetu, co najmniej 6 znaków"/><br/>
+        <input type="text" th:field="*{userName}" pattern="[A-Za-z0-9]{6,}" required
+               title = "Dozwolone tylko duże i małe litery alfabetu oraz cyfry, co najmniej 6 znaków"/><br/>
         <label>Hasło:</label>
         <input type="password" th:field="*{password}" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required
                title="Hasło powinno zawierać jedną cyfrę, jedną wielką literę, jeden znak specjalny i mieć co najmniej 8 znaków"/><br/>

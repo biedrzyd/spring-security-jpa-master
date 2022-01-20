@@ -1,23 +1,29 @@
 package io.javabrains.springsecurityjpa.models;
 
-import net.bytebuddy.implementation.bind.annotation.Empty;
-
 import javax.persistence.*;
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Entity
 @Table(name = "user")
 public class User {
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+    @NotNull
+    @Pattern(regexp = "^[a-zA-Z0-9]*$", message = "Tylko znaki alfanumeryczne")
+    @Size(min=6, max=30, message = "Dozwolona długość między 6 a 30 znaków")
     private String userName;
+    @NotNull
     private String password;
     private boolean active;
     private String roles;
+    @Column(name = "password_reset")
+    private String passwordReset;
 
     public boolean isAccountNonLocked() {
         return accountNonLocked;
@@ -88,5 +94,13 @@ public class User {
 
     public void setRoles(String roles) {
         this.roles = roles;
+    }
+
+    public String getPasswordReset() {
+        return passwordReset;
+    }
+
+    public void setPasswordReset(String passResetString) {
+        this.passwordReset = passResetString;
     }
 }

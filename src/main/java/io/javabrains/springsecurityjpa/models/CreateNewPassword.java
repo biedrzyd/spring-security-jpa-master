@@ -1,10 +1,9 @@
 package io.javabrains.springsecurityjpa.models;
 
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CreateNewPassword extends Password{
+public class CreateNewPassword extends Password {
     public String getDecryptpass() {
         return decryptpass;
     }

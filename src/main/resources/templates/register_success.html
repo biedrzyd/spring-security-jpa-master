@@ -12,11 +12,13 @@
   <a href="login">Zaloguj się</a>
   <a href="addpassword">Dodaj hasło</a>
   <a href="/">Wyświetl hasła</a>
+    <a href="forgotpassword">Zresetuj hasło</a>
 </div>
 <div align="center">
   <h2>Rejestracja przebiegła pomyślnie</h2>
   <span>Nazwa:</span><span th:text="${user.userName}"></span><br/>
   <span>Entropia hasła:</span><span th:text="${entropy}"></span><br />
+  <span>Twoj klucz do resetu hasła:</span><span th:text="${passwordreset}"></span><br />
 </div>
 </body>
 </html>

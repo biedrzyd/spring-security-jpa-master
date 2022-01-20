@@ -17,7 +17,6 @@ public class Password {
     private String password;
 
 
-
     public Integer getId() {
         return id;
     }
@@ -49,7 +48,6 @@ public class Password {
     public void setPassword(String password) {
         this.password = password;
     }
-
 
 
 }
